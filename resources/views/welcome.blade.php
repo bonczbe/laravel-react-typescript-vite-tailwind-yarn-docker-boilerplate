@@ -1,5 +1,5 @@
 @viteReactRefresh
-@vite('resources/js/app.jsx')
+@vite('resources/js/app.tsx')
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -16,7 +16,7 @@
 
     </head>
     <body class="antialiased">
-       
+
         <div id="example"></div>
     </body>
 </html>

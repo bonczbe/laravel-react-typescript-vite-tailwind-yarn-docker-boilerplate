@@ -9,7 +9,7 @@ export default defineConfig(({ command }) => {
 
     return {
         plugins: [
-            laravel(["resources/js/app.jsx"]),
+            laravel(["resources/js/app.tsx"]),
             react({
                 fastRefresh: enableFastRefresh,
             }),
@@ -30,7 +30,7 @@ export default defineConfig(({ command }) => {
         build: {
             outDir: "public/build",
             rollupOptions: {
-                input: "resources/js/app.jsx",
+                input: "resources/js/app.tsx",
             },
         },
     };
