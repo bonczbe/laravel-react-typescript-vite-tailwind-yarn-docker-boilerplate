@@ -1,0 +1,63 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile.app
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/var/www/html:delegated
+            - /var/www/html/vendor # Cache Composer dependencies
+        networks:
+            - laravel
+        depends_on:
+            db:
+                condition: service_healthy # Wait for db health check
+        command: >
+            sh -c "if [ ! -f .env ]; then cp .env.example .env; fi &&
+                   composer install &&
+                   php artisan key:generate &&
+                   php artisan storage:link &&
+                   php artisan migrate:fresh --seed &&
+                   php artisan serve --host=0.0.0.0 --port=8000"
+
+    node:
+        build:
+            context: .
+            dockerfile: Dockerfile.node
+        ports:
+            - "5173:5173"
+        volumes:
+            - .:/var/www/html:delegated
+            - /var/www/html/node_modules # Cache Yarn dependencies
+        networks:
+            - laravel
+        working_dir: /var/www/html
+        depends_on:
+            - app
+        command: >
+            sh -c "yarn install && yarn run dev --host"
+
+    db:
+        image: mysql:5.7
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: project
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - laravel
+        healthcheck:
+            test: [ "CMD-SHELL", "mysqladmin ping -h localhost --silent" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+networks:
+    laravel:
+        driver: bridge
+
+volumes:
+    db_data:
